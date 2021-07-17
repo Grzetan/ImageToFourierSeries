@@ -1,7 +1,10 @@
 import pygame
 from Circle import Circle
+from DFT import discrete_fourier_transform
+import math
 
 pygame.init()
+
 
 class Window:
     def __init__(self):
@@ -13,18 +16,27 @@ class Window:
         self.run = True
 
         self.time = 0
+        self.signal = [100, 100, 100, -100, -100, -100, 100, 100, 100, -100, -100, -100]
+        self.path = []
+        self.epicycles = discrete_fourier_transform(self.signal)
+        self.speed = (2 * math.pi) / len(self.epicycles)
         self.circles = []
         self.init_circles()
 
         self.loop()
 
     def init_circles(self):
-        rr = 200
-        c = Circle(None, rr, (self.W/2, self.H/2))
-        self.circles.append(c)
+        for i in range(len(self.epicycles)):
+            if i == 0:
+                parent = None
+                coords = (self.W / 2, self.H / 2)
+            else:
+                parent = self.circles[i - 1]
+                coords = None
 
-        for i in range(2, 5):
-            c = Circle(self.circles[-1], rr//i+1)
+            epicycle = self.epicycles[i]
+            print(epicycle)
+            c = Circle(parent, epicycle['amplitude'], epicycle['phase'], epicycle['frequency'], coords)
             self.circles.append(c)
 
     def events(self):
@@ -36,10 +48,25 @@ class Window:
         for c in self.circles:
             c.move(self.time)
 
-        self.time += 0.02
+        if len(self.path) > 300:
+            self.path.pop(0)
+
+        for point in self.path:
+            point[0] += 1
+        self.path.append([700, self.circles[-1].y])
+
+        if self.time > math.pi * 2:
+            self.time = 0
+
+        self.time += self.speed
 
     def refresh_window(self):
         self.WIN.fill(0)
+
+        pygame.draw.line(self.WIN, (255, 0, 0), (self.circles[-1].x, self.circles[-1].y), (700, self.circles[-1].y))
+
+        for i in range(1, len(self.path)):
+            pygame.draw.line(self.WIN, (255, 0, 0), self.path[i - 1], self.path[i])
 
         for c in self.circles:
             c.draw(self.WIN)
@@ -51,7 +78,7 @@ class Window:
             self.events()
             self.move()
             self.refresh_window()
-
             self.CLOCK.tick(self.FPS)
+
 
 Window()
