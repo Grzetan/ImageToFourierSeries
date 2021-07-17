@@ -16,9 +16,10 @@ class Circle:
         if self.parent is not None:
             self.x = self.parent.ending_x
             self.y = self.parent.ending_y
-        self.ending_x = self.x + self.r * math.sin(self.frequency * time + self.phase)
-        self.ending_y = self.y + self.r * math.cos(self.frequency * time + self.phase)
+            #TODO: debug placement
+        self.ending_x = self.x + self.r * math.sin(self.frequency * time + self.phase + math.pi / 2)
+        self.ending_y = self.y + self.r * math.cos(self.frequency * time + self.phase + math.pi / 2)
 
-    def draw(self, surface):
-        pygame.draw.circle(surface, (255, 255, 255), (self.x, self.y), self.r, 1)
-        pygame.draw.line(surface, (255, 255, 255), (self.x, self.y), (self.ending_x, self.ending_y))
+    def draw(self, pgZ):
+        pgZ.draw_circle((255, 255, 255), self.x, self.y, self.r, 1)
+        pgZ.draw_line((255, 255, 255), self.x, self.y, self.ending_x, self.ending_y)
