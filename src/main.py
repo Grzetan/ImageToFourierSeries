@@ -65,7 +65,7 @@ class Window:
             elif event.type == pygame.MOUSEMOTION:
                 if self.status == "USER" and pygame.mouse.get_pressed()[0]:
                     pos = pygame.mouse.get_pos()
-                    self.signal.append(complex(pos[0], pos[1]))
+                    self.signal.append(complex(pos[0] - self.W/2, pos[1] - self.H/2))
                     self.path.append(pos)
 
     def move(self):

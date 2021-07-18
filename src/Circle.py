@@ -16,9 +16,8 @@ class Circle:
         if self.parent is not None:
             self.x = self.parent.ending_x
             self.y = self.parent.ending_y
-            #TODO: debug placement
-        self.ending_x = self.x + self.r * math.sin(self.frequency * time + self.phase + math.pi / 2)
-        self.ending_y = self.y + self.r * math.cos(self.frequency * time + self.phase + math.pi / 2)
+        self.ending_x = self.x + self.r * math.cos(self.frequency * time + self.phase)
+        self.ending_y = self.y + self.r * math.sin(self.frequency * time + self.phase)
 
     def draw(self, pgZ):
         pgZ.draw_circle((255, 255, 255), self.x, self.y, self.r, 1)
