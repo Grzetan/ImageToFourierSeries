@@ -11,6 +11,8 @@ class Circle:
         if parent is None:
             self.x = coords[0]
             self.y = coords[1]
+        self.ending_x = 0
+        self.ending_y = 0
 
     def move(self, time):
         if self.parent is not None:
