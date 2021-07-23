@@ -7,11 +7,13 @@ img = Image.open("face.jpeg")
 img = ImageOps.grayscale(img)
 img = np.array(img)
 
+
 def generate_gaussian_kernel(kernel_size, sigma):
     ax = np.linspace(-(kernel_size - 1) / 2, (kernel_size - 1) / 2, kernel_size)
-    x,y =  np.meshgrid(ax, ax)
+    x, y = np.meshgrid(ax, ax)
     kernel = np.exp(-0.5 * (np.square(x) + np.square(y)) / np.square(sigma))
     return kernel / np.sum(kernel)
+
 
 def convolve(img, kernel):
     kernel_size = kernel.shape[0]
@@ -21,25 +23,58 @@ def convolve(img, kernel):
 
     for y in range(gradient_map.shape[0]):
         for x in range(gradient_map.shape[1]):
-            gradient_map[y,x] = np.sum(img[y:y+kernel_size, x:x+kernel_size] * kernel)
+            gradient_map[y, x] = np.sum(img[y:y + kernel_size, x:x + kernel_size] * kernel)
 
     return gradient_map
+
+
+def non_maximum_suppression(img, angles):
+    w, h = img.shape
+    new_img = np.zeros(img.shape)
+    img = np.pad(img, 1, 'edge')
+
+    for y in range(w):
+        for x in range(h):
+            angle = abs(angles[y, x])
+            xx = 0
+            yy = 0
+
+            if (0 < angle < np.pi / 8) or (np.pi > angle > 7 * np.pi / 8):
+                xx = -1
+                yy = 0
+            elif np.pi / 8 < angle < 3 * np.pi / 8:
+                xx = -1
+                yy = -1
+            elif 3 * np.pi / 8 < angle < 5 * np.pi / 8:
+                xx = 0
+                yy = 1
+            elif 5 * np.pi / 8 < angle < 7 * np.pi / 8:
+                xx = 1
+                yy = -1
+
+            if img[y + 1 + yy, x + 1 + xx] > img[y + 1, x + 1] or img[y + 1 - yy, x + 1 - xx] > img[y + 1, x + 1]:
+                new_img[y, x] = 0
+            else:
+                new_img[y, x] = img[y + 1, x + 1]
+
+    return new_img
+
 
 # Apply gaussian blur
 kernel = generate_gaussian_kernel(5, 2)
 img = convolve(img, kernel)
 
-# Find gradients
+# Calculate gradients
 x_kernel = np.array([
-    [-1,0,1],
-    [-2,0,2],
-    [-1,0,1]
+    [-1, 0, 1],
+    [-2, 0, 2],
+    [-1, 0, 1]
 ])
 
 y_kernel = np.array([
-    [-1,-2,-1],
-    [0,0,0],
-    [1,2,1]
+    [-1, -2, -1],
+    [0, 0, 0],
+    [1, 2, 1]
 ])
 
 g_x = convolve(img, x_kernel)
@@ -47,12 +82,13 @@ g_y = convolve(img, y_kernel)
 
 gradients = np.sqrt(np.square(g_x) + np.square(g_y))
 gradients = gradients / gradients.max() * 255
+# Get direction for every pixel
 theta = np.arctan2(g_y, g_x)
-
-img = Image.fromarray(gradients)
+# Apply non-maximum suppression
+img = non_maximum_suppression(gradients, theta)
+print(img.max())
+img = Image.fromarray(img)
 img.show()
-
-
 
 #
 #
