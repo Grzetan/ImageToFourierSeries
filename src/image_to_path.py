@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-img = Image.open("face.jpeg")
+img = Image.open("o.jpg")
 img = ImageOps.grayscale(img)
 img = np.array(img)
 
@@ -19,7 +19,7 @@ def convolve(img, kernel):
     kernel_size = kernel.shape[0]
     pad_size = (kernel_size - 1) / 2
     gradient_map = np.zeros(img.shape)
-    img = np.pad(img, int(pad_size))
+    img = np.pad(img, int(pad_size), 'edge')
 
     for y in range(gradient_map.shape[0]):
         for x in range(gradient_map.shape[1]):
@@ -59,6 +59,24 @@ def non_maximum_suppression(img, angles):
 
     return new_img
 
+def double_threshold(img, high, low):
+    high_threshhold = img.max() * high
+    low_threshold = high_threshhold * low
+    strong = np.int16(255)
+    week = np.int16(30)
+
+    for y in range(img.shape[0]):
+        for x in range(img.shape[1]):
+            val = img[y,x]
+            if val >= high_threshhold:
+                img[y,x] = strong
+            elif val < low_threshold:
+                img[y,x] = 0
+            else:
+                img[y,x] = week
+
+    return img
+
 
 # Apply gaussian blur
 kernel = generate_gaussian_kernel(5, 2)
@@ -86,49 +104,8 @@ gradients = gradients / gradients.max() * 255
 theta = np.arctan2(g_y, g_x)
 # Apply non-maximum suppression
 img = non_maximum_suppression(gradients, theta)
-print(img.max())
+# Apply double thresholding
+img = double_threshold(img, 0.09, 0.05)
+
 img = Image.fromarray(img)
 img.show()
-
-#
-#
-# feature_map = np.full((img.shape[0], img.shape[1], 2), 0)
-#
-# pixels_around = [
-#     (-1, -1), (0, -1), (1, -1),
-#     (-1, 0),           (1, 0),
-#     (-1, 1),  (0, 1),  (1, 1)
-# ]
-#
-# horizontal_kernel = [
-#     -1, 0, 1,
-#     -1,    1,
-#     -1, 0, 1
-# ]
-#
-# vertical_kernel = [
-#     -1, -1, -1,
-#      0,      0,
-#      1,  1,  1
-# ]
-#
-# # Create feature map
-# for y in range(1, img.shape[0] - 1):
-#     for x in range(1, img.shape[1] - 1):
-#
-#         horizontal_kernel_value = 0
-#         vertical_kernel_value = 0
-#
-#         for i, pixel in enumerate(pixels_around):
-#             value_of_pixel = img[y + pixel[1], x + pixel[0]]
-#             horizontal_kernel_value += value_of_pixel * horizontal_kernel[i]
-#             vertical_kernel_value += value_of_pixel * vertical_kernel[i]
-#
-#         gradient = math.sqrt(math.pow(horizontal_kernel_value, 2) + math.pow(vertical_kernel_value, 2))
-#         feature_map[y, x, 0] = gradient
-#         feature_map[y, x, 1] = math.atan2(vertical_kernel_value, horizontal_kernel_value)
-#         print(feature_map[y,x,1])
-
-
-# TODO
-# https://www.analyticsvidhya.com/blog/2021/03/edge-detection-extracting-the-edges-from-an-image/
