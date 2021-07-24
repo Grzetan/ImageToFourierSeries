@@ -4,7 +4,7 @@ from PIL import Image, ImageOps, ImageFilter
 import numpy as np
 import matplotlib.pyplot as plt
 
-img = Image.open("gh.png")
+img = Image.open("face.jpeg")
 img = ImageOps.grayscale(img)
 img = np.array(img)
 
@@ -94,6 +94,16 @@ def hysteresis(img):
 
     return img[1:-1, 1:-1]
 
+def get_points(img):
+    points = np.array([])
+    for y in range(img.shape[0]):
+        for x in range(img.shape[1]):
+            if img[y,x] == 255:
+                points = np.append(points, (x,y))
+
+    return np.reshape(points, (-1,2))
+
+
 # Apply gaussian blur
 kernel = generate_gaussian_kernel(5, 2)
 img = convolve(img, kernel)
@@ -116,14 +126,19 @@ g_y = convolve(img, y_kernel)
 
 gradients = np.sqrt(np.square(g_x) + np.square(g_y))
 gradients = gradients / gradients.max() * 255
+
 # Get direction for every pixel
 theta = np.arctan2(g_y, g_x)
+
 # Apply non-maximum suppression
 img = non_maximum_suppression(gradients, theta)
+
 # Apply double thresholding
 img = double_threshold(img, 0.09, 0.05)
+
 # Apply edge tracking
 img = hysteresis(img)
-# Show edges
-img = Image.fromarray(img)
-img.show()
+
+# Convert image to set of points
+points = get_points(img)
+
