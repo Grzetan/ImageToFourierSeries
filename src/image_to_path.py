@@ -1,9 +1,10 @@
+# For edge detection I use canny edge detection algorithm
+
 from PIL import Image, ImageOps, ImageFilter
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 
-img = Image.open("o.jpg")
+img = Image.open("gh.png")
 img = ImageOps.grayscale(img)
 img = np.array(img)
 
@@ -60,15 +61,15 @@ def non_maximum_suppression(img, angles):
     return new_img
 
 def double_threshold(img, high, low):
-    high_threshhold = img.max() * high
-    low_threshold = high_threshhold * low
+    high_threshold = img.max() * high
+    low_threshold = high_threshold * low
     strong = np.int16(255)
     week = np.int16(30)
 
     for y in range(img.shape[0]):
         for x in range(img.shape[1]):
             val = img[y,x]
-            if val >= high_threshhold:
+            if val >= high_threshold:
                 img[y,x] = strong
             elif val < low_threshold:
                 img[y,x] = 0
@@ -77,6 +78,21 @@ def double_threshold(img, high, low):
 
     return img
 
+def hysteresis(img):
+    img = np.pad(img, 1)
+    week = np.int16 = 30
+    strong = np.int16 = 255
+
+    for y in range(1,img.shape[0]-1):
+        for x in range(1,img.shape[1]-1):
+            if img[y,x] == week:
+                area = img[y-1:y+1, x-1:x+1]
+                if area.max() == strong:
+                    img[y,x] = strong
+                else:
+                    img[y,x] = 0
+
+    return img[1:-1, 1:-1]
 
 # Apply gaussian blur
 kernel = generate_gaussian_kernel(5, 2)
@@ -106,6 +122,8 @@ theta = np.arctan2(g_y, g_x)
 img = non_maximum_suppression(gradients, theta)
 # Apply double thresholding
 img = double_threshold(img, 0.09, 0.05)
-
+# Apply edge tracking
+img = hysteresis(img)
+# Show edges
 img = Image.fromarray(img)
 img.show()
