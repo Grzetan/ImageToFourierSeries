@@ -1,13 +1,5 @@
 # For edge detection I use canny edge detection algorithm
-
-from PIL import Image, ImageOps, ImageFilter
 import numpy as np
-import matplotlib.pyplot as plt
-
-img = Image.open("face.jpeg")
-img = ImageOps.grayscale(img)
-img = np.array(img)
-
 
 def generate_gaussian_kernel(kernel_size, sigma):
     ax = np.linspace(-(kernel_size - 1) / 2, (kernel_size - 1) / 2, kernel_size)
@@ -103,42 +95,59 @@ def get_points(img):
 
     return np.reshape(points, (-1,2))
 
+def create_path(points):
+    path = np.array([points[0]])
+    not_added = points[1:]
 
-# Apply gaussian blur
-kernel = generate_gaussian_kernel(5, 2)
-img = convolve(img, kernel)
+    while len(not_added) != 0:
+        dist = np.abs(path[-1] - not_added)
+        vector_len = np.sqrt(np.square(dist[:,0]) + np.square(dist[:,1]))
+        min_dist = np.argsort(vector_len)[0]
+        path = np.vstack([path, not_added[min_dist]])
+        not_added = np.delete(not_added, min_dist, axis=0)
 
-# Calculate gradients
-x_kernel = np.array([
-    [-1, 0, 1],
-    [-2, 0, 2],
-    [-1, 0, 1]
-])
+    return path
 
-y_kernel = np.array([
-    [-1, -2, -1],
-    [0, 0, 0],
-    [1, 2, 1]
-])
+def image_to_path(img):
+    # Apply gaussian blur
+    kernel = generate_gaussian_kernel(5, 2)
+    img = convolve(img, kernel)
 
-g_x = convolve(img, x_kernel)
-g_y = convolve(img, y_kernel)
+    # Calculate gradients
+    x_kernel = np.array([
+        [-1, 0, 1],
+        [-2, 0, 2],
+        [-1, 0, 1]
+    ])
 
-gradients = np.sqrt(np.square(g_x) + np.square(g_y))
-gradients = gradients / gradients.max() * 255
+    y_kernel = np.array([
+        [-1, -2, -1],
+        [0, 0, 0],
+        [1, 2, 1]
+    ])
 
-# Get direction for every pixel
-theta = np.arctan2(g_y, g_x)
+    g_x = convolve(img, x_kernel)
+    g_y = convolve(img, y_kernel)
 
-# Apply non-maximum suppression
-img = non_maximum_suppression(gradients, theta)
+    gradients = np.sqrt(np.square(g_x) + np.square(g_y))
+    gradients = gradients / gradients.max() * 255
 
-# Apply double thresholding
-img = double_threshold(img, 0.09, 0.05)
+    # Get direction for every pixel
+    theta = np.arctan2(g_y, g_x)
 
-# Apply edge tracking
-img = hysteresis(img)
+    # Apply non-maximum suppression
+    img = non_maximum_suppression(gradients, theta)
 
-# Convert image to set of points
-points = get_points(img)
+    # Apply double thresholding
+    img = double_threshold(img, 0.1, 0.05)
 
+    # Apply edge tracking
+    img = hysteresis(img)
+
+    # Convert image to set of points
+    points = get_points(img)
+
+    # Create path
+    path = create_path(points)
+
+    return path
