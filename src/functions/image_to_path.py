@@ -112,10 +112,12 @@ def create_path(points):
 
 def image_to_path(img):
     # Apply gaussian blur
+    print("\rConverting image to path: 0/6", end="")
     kernel = generate_gaussian_kernel(5, 2)
     img = convolve(img, kernel)
 
     # Calculate gradients
+    print("\rConverting image to path: 1/6", end="")
     x_kernel = np.array([
         [-1, 0, 1],
         [-2, 0, 2],
@@ -138,18 +140,23 @@ def image_to_path(img):
     theta = np.arctan2(g_y, g_x)
 
     # Apply non-maximum suppression
+    print("\rConverting image to path: 2/6", end="")
     img = non_maximum_suppression(gradients, theta)
 
     # Apply double thresholding
+    print("\rConverting image to path: 3/6", end="")
     img = double_threshold(img, 0.2, 0.05)
 
     # Apply edge tracking
+    print("\rConverting image to path: 4/6", end="")
     img = hysteresis(img)
 
     # Convert image to set of points
     points = get_points(img)
 
     # Create path
+    print("\rConverting image to path: 5/6", end="")
     path = create_path(points)
+    print("\rConverting image to path: 6/6\n", end="")
 
     return path

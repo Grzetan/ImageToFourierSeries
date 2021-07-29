@@ -22,5 +22,5 @@ class Circle:
         self.ending_y = self.y + self.r * math.sin(self.frequency * time + self.phase)
 
     def draw(self, pgZ):
-        pgZ.draw_circle((255, 255, 255), self.x, self.y, self.r, 1)
-        pgZ.draw_line((255, 255, 255), self.x, self.y, self.ending_x, self.ending_y)
+        pgZ.draw_circle((100, 100, 100), self.x, self.y, self.r, 1)
+        pgZ.draw_line((100, 100, 100), self.x, self.y, self.ending_x, self.ending_y)

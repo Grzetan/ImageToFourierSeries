@@ -19,6 +19,9 @@ def discrete_fourier_transform(signal):
 
         epicycles.append({"frequency": frequency, "amplitude": amplitude, "phase": phase})
 
+        print(f"\rCalculating fourier transform: {round(k/N * 100)}%", end="")
+
     epicycles = sorted(epicycles, key=lambda elem: elem['amplitude'], reverse=True)
 
+    print("\n")
     return epicycles
