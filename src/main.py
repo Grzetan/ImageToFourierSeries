@@ -23,10 +23,14 @@ class Window:
 
         print("Reading image...")
         img = Image.open(img_path)
+        mode = img.mode
+        size = img.size
+        data = img.tobytes()
+        self.image = pygame.image.fromstring(data, size, mode)
         img = ImageOps.grayscale(img)
         print("Converting image to path...")
-        path = image_to_path(np.array(img))
-        self.signal = [complex(p[0], p[1]) for p in path]
+        path, self.dists = image_to_path(np.array(img))
+        self.signal = [complex(p[0] - img.size[0]/2, p[1] - img.size[1]/2) for p in path]
 
         print("Calculating fourier transform for generated path...")
         self.epicycles = discrete_fourier_transform(self.signal)
@@ -34,7 +38,7 @@ class Window:
         self.time = 0
         self.current_circle_position_index = 0
         self.path = []
-        self.disapear_ratio = 0
+        self.disapear_ratio = 200 / len(self.signal)
         self.circles = []
         self.one_full_cycle = False
         self.init_circles()
@@ -83,9 +87,12 @@ class Window:
     def refresh_window(self):
         self.WIN.fill(0)
 
+        #self.pgZ.blit(self.image, (self.W//2 - self.image.get_width() // 2, self.H//2 - self.image.get_height() // 2))
+
         for i in range(1, len(self.path) - 2):
-            self.pgZ.draw_line(self.path[i][2], self.path[i - 1][0], self.path[i - 1][1], self.path[i][0],
-                               self.path[i][1], 3)
+            if self.dists[i] < 10:
+                self.pgZ.draw_line(self.path[i][2], self.path[i - 1][0], self.path[i - 1][1], self.path[i][0],
+                                   self.path[i][1], 3)
 
         # self.pgZ.follow_point(self.circles[-1].x, self.circles[-1].y, 5)
         for c in self.circles:
@@ -102,4 +109,4 @@ class Window:
             self.CLOCK.tick(self.FPS)
 
 
-Window('o.jpg')
+Window('face.jpeg')

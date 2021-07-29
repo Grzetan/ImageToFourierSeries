@@ -98,15 +98,17 @@ def get_points(img):
 def create_path(points):
     path = np.array([points[0]])
     not_added = points[1:]
+    vector_lengths = np.array([0])
 
     while len(not_added) != 0:
         dist = np.abs(path[-1] - not_added)
         vector_len = np.sqrt(np.square(dist[:,0]) + np.square(dist[:,1]))
         min_dist = np.argsort(vector_len)[0]
         path = np.vstack([path, not_added[min_dist]])
+        vector_lengths = np.append(vector_lengths, vector_len[min_dist])
         not_added = np.delete(not_added, min_dist, axis=0)
 
-    return path
+    return path, vector_lengths
 
 def image_to_path(img):
     # Apply gaussian blur
@@ -139,7 +141,7 @@ def image_to_path(img):
     img = non_maximum_suppression(gradients, theta)
 
     # Apply double thresholding
-    img = double_threshold(img, 0.1, 0.05)
+    img = double_threshold(img, 0.2, 0.05)
 
     # Apply edge tracking
     img = hysteresis(img)
