@@ -6,10 +6,11 @@ import numpy as np
 from pygameZoom import PygameZoom
 from PIL import Image, ImageOps
 from functions.image_to_path import image_to_path
+from functions.ImageVisibility import ImageVisibility
 
 
 class Window:
-    def __init__(self, img_path, image_visible, path_disappears):
+    def __init__(self, img_path, image_visibility, static_path, reset_path):
         img = Image.open(img_path)
         mode = img.mode
         size = img.size
@@ -29,11 +30,14 @@ class Window:
         self.CLOCK = pygame.time.Clock()
         self.FPS = 30
         self.run = True
-        self.image_visible = image_visible
-        self.path_disappears = path_disappears
         self.pgZ = PygameZoom(self.W, self.H)
         self.pgZ.allow_zooming(False)
         self.pgZ.allow_dragging(False)
+
+        #Parse args
+        self.image_visibility = image_visibility
+        self.static_path = static_path
+        self.reset_path = reset_path
 
         self.speed = 2 * math.pi / len(self.epicycles)
         self.time = 0
@@ -69,7 +73,7 @@ class Window:
             c.move(self.time)
 
         # Make path less visible over time
-        if self.path_disappears:
+        if not self.static_path:
             for i, p in enumerate(self.path):
                 p[2] = [abs(x - self.disappear_ratio) for x in p[2]]
                 if i == self.current_circle_position_index:
@@ -80,7 +84,10 @@ class Window:
 
         if self.time > math.pi * 2:
             self.time = 0
-            self.one_full_cycle = True
+            if self.reset_path:
+                self.path = []
+            else:
+                self.one_full_cycle = True
             self.current_circle_position_index = 0
 
         self.time += self.speed
@@ -89,12 +96,12 @@ class Window:
     def refresh_window(self):
         self.WIN.fill(0)
 
+        if self.image_visibility == ImageVisibility.VISIBLE:
+            self.pgZ.blit(self.image, (self.W//2 - self.image.get_width() // 2, self.H//2 - self.image.get_height() // 2))
+
         # self.pgZ.follow_point(self.circles[-1].x, self.circles[-1].y, 5)
         for c in self.circles:
             c.draw(self.pgZ)
-
-        if self.image_visible:
-            self.pgZ.blit(self.image, (self.W//2 - self.image.get_width() // 2, self.H//2 - self.image.get_height() // 2))
 
         for i in range(1, len(self.path) - 2):
             if self.dists[i] < 10:
