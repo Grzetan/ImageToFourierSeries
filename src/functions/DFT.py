@@ -1,27 +1,18 @@
 import math
-
+import numpy as np
 
 def discrete_fourier_transform(signal):
     N = len(signal)
-    epicycles = []
+    epicycles = np.empty((N, 3))
 
     for k in range(N):
-        sum = complex(0, 0)
-        for n in range(N):
-            alpha = (2 * math.pi * k * n) / N
-            formula_complex = complex(math.cos(alpha), -math.sin(alpha)) * signal[n]
-            sum += formula_complex
-        sum /= N
+        alphas = (2 * np.pi * np.arange(N) * k) / N
+        sum = np.sum((np.cos(alphas) + (np.sin(alphas) * -1) * 1j) * signal) / N
 
         frequency = k
         amplitude = math.sqrt(sum.real * sum.real + sum.imag * sum.imag)
         phase = math.atan2(sum.imag, sum.real)
 
-        epicycles.append({"frequency": frequency, "amplitude": amplitude, "phase": phase})
+        epicycles[k] = [frequency, amplitude, phase]
 
-        print(f"\rCalculating fourier transform: {round(k/N * 100)}%", end="")
-
-    epicycles = sorted(epicycles, key=lambda elem: elem['amplitude'], reverse=True)
-
-    print("\n")
-    return epicycles
+    return epicycles[epicycles[:,1].argsort()[::-1]]

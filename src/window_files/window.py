@@ -60,7 +60,7 @@ class Window:
                 coords = None
 
             epicycle = self.epicycles[i]
-            c = Circle(parent, epicycle['amplitude'], epicycle['phase'], epicycle['frequency'], coords)
+            c = Circle(parent, epicycle[1], epicycle[2], epicycle[0], coords)
             self.circles.append(c)
 
     def events(self):
