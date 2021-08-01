@@ -1,12 +1,6 @@
 # For edge detection I use canny edge detection algorithm
 import numpy as np
-
-def generate_gaussian_kernel(kernel_size, sigma):
-    ax = np.linspace(-(kernel_size - 1) / 2, (kernel_size - 1) / 2, kernel_size)
-    x, y = np.meshgrid(ax, ax)
-    kernel = np.exp(-0.5 * (np.square(x) + np.square(y)) / np.square(sigma))
-    return kernel / np.sum(kernel)
-
+from scipy.ndimage import gaussian_filter
 
 def convolve(img, kernel):
     kernel_size = kernel.shape[0]
@@ -87,13 +81,7 @@ def hysteresis(img):
     return img[1:-1, 1:-1]
 
 def get_points(img):
-    points = np.array([])
-    for y in range(img.shape[0]):
-        for x in range(img.shape[1]):
-            if img[y,x] == 255:
-                points = np.append(points, (x,y))
-
-    return np.reshape(points, (-1,2))
+    return np.argwhere(img == 255)[:, ::-1]
 
 def create_path(points):
     path = np.array([points[0]])
@@ -113,8 +101,7 @@ def create_path(points):
 def image_to_path(img):
     # Apply gaussian blur
     print("\rConverting image to path: 0/6", end="")
-    kernel = generate_gaussian_kernel(5, 2)
-    img = convolve(img, kernel)
+    img = gaussian_filter(img, sigma=1)
 
     # Calculate gradients
     print("\rConverting image to path: 1/6", end="")
