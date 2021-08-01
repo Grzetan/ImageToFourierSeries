@@ -1,19 +1,20 @@
 # For edge detection I use canny edge detection algorithm
 import numpy as np
 from scipy.ndimage import gaussian_filter
+from scipy.ndimage.filters import convolve
+import time
 
-def convolve(img, kernel):
-    kernel_size = kernel.shape[0]
-    pad_size = (kernel_size - 1) / 2
-    gradient_map = np.zeros(img.shape)
-    img = np.pad(img, int(pad_size), 'edge')
-
-    for y in range(gradient_map.shape[0]):
-        for x in range(gradient_map.shape[1]):
-            gradient_map[y, x] = np.sum(img[y:y + kernel_size, x:x + kernel_size] * kernel)
-
-    return gradient_map
-
+# def convolve(img, kernel):
+#     kernel_size = kernel.shape[0]
+#     pad_size = (kernel_size - 1) / 2
+#     gradient_map = np.zeros(img.shape, dtype=np.complex128)
+#     img = np.pad(img, int(pad_size), 'edge')
+#
+#     for y in range(gradient_map.shape[0]):
+#         for x in range(gradient_map.shape[1]):
+#             gradient_map[y, x] = np.sum(img[y:y + kernel_size, x:x + kernel_size] * kernel)
+#
+#     return gradient_map
 
 def non_maximum_suppression(img, angles):
     w, h = img.shape
@@ -105,26 +106,18 @@ def image_to_path(img):
 
     # Calculate gradients
     print("\rConverting image to path: 1/6", end="")
-    x_kernel = np.array([
-        [-1, 0, 1],
+    kernel = np.array([
+        [-1 - 1j, -2j, 1 - 1j],
         [-2, 0, 2],
-        [-1, 0, 1]
+        [-1 + 1j, 2j, 1 + 1j]
     ])
 
-    y_kernel = np.array([
-        [-1, -2, -1],
-        [0, 0, 0],
-        [1, 2, 1]
-    ])
-
-    g_x = convolve(img, x_kernel)
-    g_y = convolve(img, y_kernel)
-
-    gradients = np.sqrt(np.square(g_x) + np.square(g_y))
+    g = convolve(img, kernel, cval=1)
+    gradients = np.sqrt(np.square(g.real) + np.square(g.imag))
     gradients = gradients / gradients.max() * 255
 
     # Get direction for every pixel
-    theta = np.arctan2(g_y, g_x)
+    theta = np.arctan2(g.imag, g.real)
 
     # Apply non-maximum suppression
     print("\rConverting image to path: 2/6", end="")
