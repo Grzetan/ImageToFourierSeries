@@ -7,7 +7,7 @@ from pygameZoom import PygameZoom
 from PIL import Image, ImageOps
 from functions.image_to_path import image_to_path
 from functions.ImageVisibility import ImageVisibility
-
+import time
 
 class Window:
     def __init__(self, img_path, image_visibility, static_path, reset_path):
@@ -19,8 +19,8 @@ class Window:
         img = ImageOps.grayscale(img)
 
         path, self.dists = image_to_path(np.array(img))
-        self.signal = [complex(p[0] - img.size[0] / 2, p[1] - img.size[1] / 2) for p in path]
-
+        skip = round(len(path) / 7500) if len(path) > 7500 else 1
+        self.signal = np.array([complex(path[i][0] - img.size[0] / 2, path[i][1] - img.size[1] / 2) for i in range(0, len(path), skip)])
         self.epicycles = discrete_fourier_transform(self.signal)
 
         pygame.init()

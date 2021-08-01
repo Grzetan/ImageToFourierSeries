@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 def discrete_fourier_transform(signal):
@@ -10,8 +9,8 @@ def discrete_fourier_transform(signal):
         sum = np.sum((np.cos(alphas) + (np.sin(alphas) * -1) * 1j) * signal) / N
 
         frequency = k
-        amplitude = math.sqrt(sum.real * sum.real + sum.imag * sum.imag)
-        phase = math.atan2(sum.imag, sum.real)
+        amplitude = np.sqrt(sum.real * sum.real + sum.imag * sum.imag)
+        phase = np.arctan2(sum.imag, sum.real)
 
         epicycles[k] = [frequency, amplitude, phase]
 
