@@ -27,6 +27,12 @@ Install requirements:
 pip3 install -r requirements.txt
 ```
 
+Setup cython functions:
+
+```commandline
+python3 setup.py build_ext --inplace
+```
+
 Run main.py 
 
 ```commandline
