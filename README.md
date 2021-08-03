@@ -50,4 +50,4 @@ python3 main.py img_path=path/to/image
  - Use `--image_visibility=VISIBLE` if you want to see image as the background.
 
 
- - Use `image_visibility=NOT_VISIBLE` (default) if you don't want image to be visible in the background
+ - Use `--image_visibility=NOT_VISIBLE` (default) if you don't want image to be visible in the background

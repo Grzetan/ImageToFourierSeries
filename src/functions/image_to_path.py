@@ -1,7 +1,6 @@
 # For edge detection I use canny edge detection algorithm
 import numpy as np
 from scipy.ndimage import gaussian_filter
-from scipy.ndimage.filters import convolve
 import time
 import helper
 
@@ -22,7 +21,7 @@ def image_to_path(img):
     ])
 
     start = time.time()
-    g = convolve(img, kernel, output=np.complex128)
+    g = helper.convolve(img, kernel)
     gradients = np.sqrt(np.square(g.real) + np.square(g.imag))
     gradients = gradients / gradients.max() * 255
     end = time.time()

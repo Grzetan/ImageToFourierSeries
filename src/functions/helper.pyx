@@ -4,7 +4,31 @@ cimport numpy
 ctypedef numpy.float64_t DTYPE_float64
 ctypedef numpy.int64_t DTYPE_int64
 ctypedef numpy.int_t DTYPE_int
+ctypedef numpy.uint8_t DTYPE_uint8
 ctypedef numpy.complex128_t DTYPE_complex128
+
+def convolve(numpy.ndarray[DTYPE_uint8, ndim=2] img, numpy.ndarray[DTYPE_complex128, ndim=2] kernel):
+    cdef int kernel_size, pad_size, x, y, i, j, w, h
+    cdef numpy.ndarray[DTYPE_complex128, ndim=2] gradient_map
+    cdef DTYPE_complex128 sum
+
+    kernel_size = kernel.shape[0]
+    pad_size = (kernel_size - 1) / 2
+    w, h = img.shape[1], img.shape[0]
+    gradient_map = np.zeros((h, w), dtype=np.complex128)
+    img = np.pad(img, int(pad_size), 'edge')
+
+    for y in range(pad_size, h):
+        for x in range(pad_size, w):
+            sum = 0
+
+            for i in range(kernel_size):
+                for j in range(kernel_size):
+                    sum += img[y+(pad_size - i), x+(pad_size - j)] * kernel[i,j]
+
+            gradient_map[y-pad_size,x-pad_size] = sum
+
+    return gradient_map
 
 def non_maximum_suppression(numpy.ndarray[DTYPE_float64, ndim=2] img, numpy.ndarray[DTYPE_float64, ndim=2] angles):
     cdef int w, h, y, x, xx, yy
@@ -89,7 +113,6 @@ def double_threshold(numpy.ndarray[DTYPE_int64 ,ndim=2] img, DTYPE_float64 high,
 def hysteresis(numpy.ndarray[DTYPE_int64, ndim=2] img):
     cdef int x, y
     cdef DTYPE_int64 week, strong
-    cdef numpy.ndarray[DTYPE_int64, ndim=2] area
 
     img = np.pad(img, 1)
     week = np.int64(30)
@@ -98,8 +121,7 @@ def hysteresis(numpy.ndarray[DTYPE_int64, ndim=2] img):
     for y in range(1,img.shape[0]-1):
         for x in range(1,img.shape[1]-1):
             if img[y,x] == week:
-                area = img[y-1:y+1, x-1:x+1]
-                if area.max() == strong:
+                if img[y-1, x-1] == strong or img[y-1, x] == strong or img[y-1,x+1] == strong or img[y,x-1] == strong or img [y, x+1] == strong or img[y+1, x-1] == strong or img[y+1, x] == strong or img[y+1, x+1] == strong:
                     img[y,x] = strong
                 else:
                     img[y,x] = 0
