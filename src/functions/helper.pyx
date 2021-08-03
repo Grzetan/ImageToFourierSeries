@@ -1,9 +1,9 @@
 import numpy as np
 cimport numpy
+cimport cython
 
 ctypedef numpy.float64_t DTYPE_float64
 ctypedef numpy.int64_t DTYPE_int64
-ctypedef numpy.int_t DTYPE_int
 ctypedef numpy.uint8_t DTYPE_uint8
 ctypedef numpy.complex128_t DTYPE_complex128
 
@@ -68,7 +68,7 @@ def non_maximum_suppression(numpy.ndarray[DTYPE_float64, ndim=2] img, numpy.ndar
 
 def create_path(numpy.ndarray[DTYPE_int64, ndim=2] points):
     cdef int len, added, min_dist
-    cdef numpy.ndarray[DTYPE_int, ndim=2] path, not_added
+    cdef numpy.ndarray[DTYPE_int64, ndim=2] path, not_added
     cdef numpy.ndarray[DTYPE_float64, ndim=1] vector_lengths, vector_len
 
     len = points.shape[0]
@@ -127,3 +127,28 @@ def hysteresis(numpy.ndarray[DTYPE_int64, ndim=2] img):
                     img[y,x] = 0
 
     return img[1:-1, 1:-1]
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def discrete_fourier_transform(numpy.ndarray[DTYPE_complex128, ndim=1] signal):
+    cdef int N, k, i
+    cdef DTYPE_float64 amplitude, phase, TWO_PI
+    cdef DTYPE_complex128 sum
+    cdef numpy.ndarray[DTYPE_float64, ndim=2] epicycles
+    cdef numpy.ndarray[DTYPE_float64, ndim=1] alphas, nn
+
+    TWO_PI = np.pi * 2
+    N = len(signal)
+    nn = np.arange(N) * TWO_PI
+    epicycles = np.zeros((N, 3), dtype=np.float64)
+
+    for k in range(N):
+        alphas = (nn * k) / N
+        sum = np.sum((np.cos(alphas) + (np.sin(alphas) * -1) * 1j) * signal) / N
+
+        amplitude = np.sqrt(sum.real * sum.real + sum.imag * sum.imag)
+        phase = np.arctan2(sum.imag, sum.real)
+
+        epicycles[k] = [k, amplitude, phase]
+
+    return epicycles[epicycles[:,1].argsort()[::-1]]

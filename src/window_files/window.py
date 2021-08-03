@@ -1,6 +1,6 @@
 import pygame
 from window_files.Circle import Circle
-from functions.DFT import discrete_fourier_transform
+import helper
 import math
 import numpy as np
 from pygameZoom import PygameZoom
@@ -20,8 +20,11 @@ class Window:
 
         path, self.dists = image_to_path(np.array(img))
         skip = round(len(path) / 7500) if len(path) > 7500 else 1
-        self.signal = np.array([complex(path[i][0] - img.size[0] / 2, path[i][1] - img.size[1] / 2) for i in range(0, len(path), skip)])
-        self.epicycles = discrete_fourier_transform(self.signal)
+        self.signal = np.array([complex(path[i][0] - img.size[0] / 2, path[i][1] - img.size[1] / 2) for i in range(0, len(path), skip)], dtype=np.complex128)
+        start = time.time()
+        self.epicycles = helper.discrete_fourier_transform(self.signal)
+        end = time.time()
+        print(f"FOURIER: {end-start}")
 
         pygame.init()
         self.W = size[0] + 100
