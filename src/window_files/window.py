@@ -31,7 +31,7 @@ class Window:
         self.H = size[1] + 100
         self.WIN = pygame.display.set_mode((self.W, self.H))
         self.CLOCK = pygame.time.Clock()
-        self.FPS = 30
+        self.FPS = 60
         self.run = True
         self.pgZ = PygameZoom(self.W, self.H)
         self.pgZ.allow_zooming(False)

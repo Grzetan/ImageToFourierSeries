@@ -9,6 +9,8 @@ sort these points, so they create a path. Path is then passed to `discrete_fouri
 to transform this path to the set of epicycles. Then all it has to do is draw epicycles and track position
 of the last epicycle. For visualizing this process I use `pygame` and `pygameZoom` (It gives ability to zoom into
 pygame figures without quality loss and has a feature to track any point on canvas with specified zoom).
+All algorithms are written in `Cython` which is much faster then 
+pure python.
 
 Useful links so you can better understand this algorithm:
 

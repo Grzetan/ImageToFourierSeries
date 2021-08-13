@@ -67,20 +67,35 @@ def non_maximum_suppression(numpy.ndarray[DTYPE_float64, ndim=2] img, numpy.ndar
     return new_img
 
 def create_path(numpy.ndarray[DTYPE_int64, ndim=2] points):
-    cdef int len, added, min_dist
+    cdef int len, added, min_dist, r, i
     cdef numpy.ndarray[DTYPE_int64, ndim=2] path, not_added
     cdef numpy.ndarray[DTYPE_float64, ndim=1] vector_lengths, vector_len
+    cdef numpy.ndarray[DTYPE_int64, ndim=2] dist
+
 
     len = points.shape[0]
     path = np.zeros((len, 2), dtype=np.int)
     path[0] = points[0]
     added = 1
     not_added = points[1:].astype(np.int)
-    vector_lengths = np.zeros((len, ), dtype=np.float64)
+    vector_lengths = np.zeros((len,), dtype=np.float64)
 
     while added != len:
         dist = np.abs(path[added-1] - not_added)
-        vector_len = np.sqrt(np.square(dist[:,0]) + np.square(dist[:,1]))
+
+        r = 5
+        empty_circle = True
+        vector_len = np.zeros((dist.shape[0], ), dtype=np.float64)
+        while empty_circle:
+            for i in range(dist.shape[0]):
+                if dist[i,0] <= r and dist[i,1] <= r:
+                    empty_circle = False
+                    vector_len[i] = np.sqrt(dist[i,0]**2 + dist[i,1]**2)
+                else:
+                    vector_len[i] = 10000
+
+            r += 5
+
         min_dist = np.argsort(vector_len)[0]
         path[added] = not_added[min_dist]
         vector_lengths[added] = vector_len[min_dist]
