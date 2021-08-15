@@ -14,7 +14,13 @@ class Window:
     def __init__(self, img_path, image_visibility, static_path, reset_path, hide_circles, save_as_video,
                  custom_recording, cycle_duration):
         start = time.time()
+        max_width = 720
         img = Image.open(img_path)
+        # If image is to big, scale it
+        if img.size[0] > max_width:
+            p = max_width / img.size[0]
+            img = img.resize((max_width, int(img.size[1] * p)))
+
         mode = img.mode
         size = img.size
         data = img.tobytes()

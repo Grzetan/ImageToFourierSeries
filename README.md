@@ -53,3 +53,17 @@ python3 main.py img_path=path/to/image
 
 
  - Use `--image_visibility=NOT_VISIBLE` (default) if you don't want image to be visible in the background
+
+# Video options
+
+ - Use `--save_as_video` if you want to save result to MP4 file. It will save in current directory with name
+`ImageToFourierSeries-1629031103830.mp4`. This long number represents current timestamp.
+
+
+ - Use `--custom_recording` if you want to decide when the video ends by simply closing window. By default, it will end 
+when one full cycle is completed.
+
+    
+ - Use `--cycle_duration=duration` where `duration` is a number to specify duration of one cycle (in seconds). It 
+can be useful when you want to slow down animation (visible only on video). Default is 30 seconds, so anything greater than 30 will slow down animation
+and anything lower will speed it up.
