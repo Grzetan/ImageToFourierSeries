@@ -11,6 +11,7 @@ parser.add_argument("--reset_path", help="Specify if path should reset with each
 parser.add_argument("--hide_circles", help="Specify if circles should be visible", action="store_true")
 parser.add_argument("--save_as_video", help="Save animation in GIF file", action="store_true")
 parser.add_argument("--custom_recording", help="You decide when the video ends", action="store_true")
+parser.add_argument("--cycle_duration", type=str, default="30", help="Specify cycle's duration in seconds")
 
 args = parser.parse_args()
 try:
@@ -21,4 +22,7 @@ except:
         print(x.name)
     exit()
 
-Window(args.img_path, args.image_visibility, args.static_path, args.reset_path, args.hide_circles, args.save_as_video, args.custom_recording)
+args.cycle_duration = int(args.cycle_duration)
+
+Window(args.img_path, args.image_visibility, args.static_path, args.reset_path, args.hide_circles, args.save_as_video,
+       args.custom_recording, args.cycle_duration)

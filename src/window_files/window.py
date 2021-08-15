@@ -11,7 +11,8 @@ from functions.ImageVisibility import ImageVisibility
 import time
 
 class Window:
-    def __init__(self, img_path, image_visibility, static_path, reset_path, hide_circles, save_as_video, custom_recording):
+    def __init__(self, img_path, image_visibility, static_path, reset_path, hide_circles, save_as_video,
+                 custom_recording, cycle_duration):
         start = time.time()
         img = Image.open(img_path)
         mode = img.mode
@@ -60,8 +61,9 @@ class Window:
 
         if self.save_as_video:
             self.codec = cv2.VideoWriter_fourcc(*'mp4v')
-            self.video_name = f"ImageToFourier-{time.time()}.mp4"
-            self.out = cv2.VideoWriter(self.video_name, self.codec, round(((2*math.pi) / self.speed) / 30), (self.W, self.H))
+            self.video_name = f"ImageToFourierSeries-{time.time()}.mp4"
+            self.out = cv2.VideoWriter(self.video_name, self.codec, round(((2*math.pi) / self.speed) / cycle_duration),
+                                       (self.W, self.H))
 
         self.loop()
 
