@@ -11,7 +11,7 @@ from functions.ImageVisibility import ImageVisibility
 import time
 
 class Window:
-    def __init__(self, img_path, image_visibility, static_path, reset_path, hide_circles, save_as_video):
+    def __init__(self, img_path, image_visibility, static_path, reset_path, hide_circles, save_as_video, custom_recording):
         start = time.time()
         img = Image.open(img_path)
         mode = img.mode
@@ -47,6 +47,7 @@ class Window:
         self.reset_path = reset_path
         self.hide_circles = hide_circles
         self.save_as_video = save_as_video
+        self.custom_recording = custom_recording
 
         self.speed = 2 * math.pi / len(self.epicycles)
         self.time = 0
@@ -60,7 +61,7 @@ class Window:
         if self.save_as_video:
             self.codec = cv2.VideoWriter_fourcc(*'mp4v')
             self.video_name = f"ImageToFourier-{time.time()}.mp4"
-            self.out = cv2.VideoWriter(self.video_name, self.codec, 200, (self.W, self.H))
+            self.out = cv2.VideoWriter(self.video_name, self.codec, round(((2*math.pi) / self.speed) / 30), (self.W, self.H))
 
         self.loop()
 
@@ -97,6 +98,9 @@ class Window:
             self.path.append([self.circles[-1].x, self.circles[-1].y, (255, 0, 0)])
 
         if self.time > math.pi * 2:
+            if not self.custom_recording and self.save_as_video:
+                self.out.release()
+                exit()
             self.time = 0
             if self.reset_path:
                 self.path = []
