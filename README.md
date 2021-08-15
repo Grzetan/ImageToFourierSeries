@@ -30,7 +30,7 @@ If you feed this image to program,
 
 You will get this:
 
-![Video](https://user-images.githubusercontent.com/52281852/129481927-476990a9-69ea-4147-807b-b83577d071a8.mp4)
+![Video](https://j.gifs.com/r22zgp.gif)
 
 
 
