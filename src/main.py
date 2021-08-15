@@ -8,6 +8,8 @@ parser.add_argument("--image_visibility", type=str, default="NOT_VISIBLE", help=
                                                      "transform or maybe it should pop up when drawing is done")
 parser.add_argument("--static_path", help="Specify if path should not be less visible over time", action="store_true")
 parser.add_argument("--reset_path", help="Specify if path should reset with each full cycle", action="store_true")
+parser.add_argument("--hide_circles", help="Specify if circles should be visible", action="store_true")
+parser.add_argument("--save_as_video", help="Save animation in GIF file", action="store_true")
 
 args = parser.parse_args()
 try:
@@ -18,4 +20,4 @@ except:
         print(x.name)
     exit()
 
-Window(args.img_path, args.image_visibility, args.static_path, args.reset_path)
+Window(args.img_path, args.image_visibility, args.static_path, args.reset_path, args.hide_circles, args.save_as_video)

@@ -3,6 +3,7 @@ from window_files.Circle import Circle
 import helper
 import math
 import numpy as np
+import cv2
 from pygameZoom import PygameZoom
 from PIL import Image, ImageOps
 from functions.image_to_path import image_to_path
@@ -10,7 +11,8 @@ from functions.ImageVisibility import ImageVisibility
 import time
 
 class Window:
-    def __init__(self, img_path, image_visibility, static_path, reset_path):
+    def __init__(self, img_path, image_visibility, static_path, reset_path, hide_circles, save_as_video):
+        start = time.time()
         img = Image.open(img_path)
         mode = img.mode
         size = img.size
@@ -21,10 +23,12 @@ class Window:
         path, self.dists = image_to_path(np.array(img))
         skip = round(len(path) / 7500) if len(path) > 7500 else 1
         self.signal = np.array([complex(path[i][0] - img.size[0] / 2, path[i][1] - img.size[1] / 2) for i in range(0, len(path), skip)], dtype=np.complex128)
-        start = time.time()
+        start1 = time.time()
         self.epicycles = helper.discrete_fourier_transform(self.signal)
+        end1 = time.time()
+        print(f"CALCULATING FOURIER: {round(end1-start1, 3)} sec")
         end = time.time()
-        print(f"FOURIER: {end-start}")
+        print(f"ALL CALCULATIONS: {round(end-start, 3)} sec")
 
         pygame.init()
         self.W = size[0] + 100
@@ -41,6 +45,8 @@ class Window:
         self.image_visibility = image_visibility
         self.static_path = static_path
         self.reset_path = reset_path
+        self.hide_circles = hide_circles
+        self.save_as_video = save_as_video
 
         self.speed = 2 * math.pi / len(self.epicycles)
         self.time = 0
@@ -50,6 +56,11 @@ class Window:
         self.circles = []
         self.one_full_cycle = False
         self.init_circles()
+
+        if self.save_as_video:
+            self.codec = cv2.VideoWriter_fourcc(*'mp4v')
+            self.video_name = f"ImageToFourier-{time.time()}.mp4"
+            self.out = cv2.VideoWriter(self.video_name, self.codec, 200, (self.W, self.H))
 
         self.loop()
 
@@ -102,16 +113,21 @@ class Window:
         if self.image_visibility == ImageVisibility.VISIBLE:
             self.pgZ.blit(self.image, (self.W//2 - self.image.get_width() // 2, self.H//2 - self.image.get_height() // 2))
 
-        # self.pgZ.follow_point(self.circles[-1].x, self.circles[-1].y, 5)
-        for c in self.circles:
-            c.draw(self.pgZ)
+        if not self.hide_circles:
+            for c in self.circles:
+                c.draw(self.pgZ)
 
         for i in range(1, len(self.path) - 2):
             if self.dists[i] < 10:
                 self.pgZ.draw_line(self.path[i][2], self.path[i - 1][0], self.path[i - 1][1], self.path[i][0],
                                    self.path[i][1], 3)
 
-        self.pgZ.render(self.WIN, (0, 0))
+        surface = self.pgZ.generate_surface()
+        if self.save_as_video:
+            img = pygame.surfarray.array3d(surface).swapaxes(0,1)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            self.out.write(img)
+        self.WIN.blit(surface, (0, 0))
         pygame.display.update()
 
     def loop(self):
