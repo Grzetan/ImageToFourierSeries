@@ -30,7 +30,7 @@ If you feed this image to program,
 
 You will get this:
 
-![Video](https://github.com/Grzetan/ImageToFourierSeries/blob/master/src/face.mp4)
+![Video](https://www.youtube.com/watch?v=cJRNlRDFViw)
 
 # Usage
 
