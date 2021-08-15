@@ -22,6 +22,16 @@ Useful links so you can better understand this algorithm:
  - https://www.youtube.com/watch?v=7_vKzcgpfvU
  - https://en.wikipedia.org/wiki/Discrete_Fourier_transform
 
+# Example
+
+If you feed this image to program,
+
+![Face](https://github.com/Grzetan/ImageToFourierSeries/blob/master/src/face.jpeg)
+
+You will get this:
+
+![Video](https://github.com/Grzetan/ImageToFourierSeries/blob/master/src/face.mp4)
+
 # Usage
 
 Install requirements:
