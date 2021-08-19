@@ -68,6 +68,10 @@ python3 main.py img_path=path/to/image
 
 # Video options
 
+### Important note
+
+When using `--save_as_video` flag window will pop up anyway because this option records screen. You can do other things on your computer while this program is running. Video will be recorded properly even if popup window will be covered by other windows. For images with a lot of details generating video could take a while but when the video is recorded it will be much faster (one cycle will last for 30seconds , unless `--cycle_duration` option is used). Recording stops when you close the window or after one full cycle, unless `--custom_recording` flag is used, then video ends only when you close the window.
+
  - Use `--save_as_video` if you want to save result to MP4 file. It will save in current directory with name
 `ImageToFourierSeries-1629031103830.mp4`. This long number represents current timestamp.
 
